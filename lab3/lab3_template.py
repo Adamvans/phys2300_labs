@@ -30,8 +30,7 @@ import datetime
 #       from all the remaining lines:
 #       read in the date (index 2) and temperature (index 3)
 #       parse the date string into year, month, day
-#       convert year, month, day into decimal years for plotting (this would make a great function!)
-#       (need to pay attention to leap years here!)
+#       convert year, month, day into decimal years for plotting
 # 4) make two lists for the time series - the decimal year list and the temperature list
 # 5) sort the data by month so we can average it and take the standard deviation later
 # 6) Plot the results
