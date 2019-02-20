@@ -82,8 +82,10 @@ def calc_mean_std_dev(wdates, wtemp):
     :param wtemp: temperature per month
     :return: means, std_dev: months_mean and std_dev lists
     """
-    means = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,]
-    std_dev = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,]
+
+    # list populated so that we can add them so that they are in order.
+    means = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+    std_dev = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
     monthTemps = {}
 
     # organize the data into a dictionary to group temps by month. 
@@ -123,7 +125,7 @@ def plot_data_task1(wyear, wtemp, month_mean, month_std):
     plt.plot(wyear, wtemp, "bo")
     plt.ylabel("Temperature, F")
     plt.xlabel("Decimal Year")
-    plt.xticks(range(1970,2015, 5))
+    plt.xticks(range(1970,2016, 5)) # set ticks 
 
     plt.subplot(2, 1, 2)                # select second subplot
     plt.ylabel("Temperature, F")
