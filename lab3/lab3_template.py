@@ -21,6 +21,7 @@ Special Instructions: None
 import sys
 import matplotlib.pylab as plt
 import numpy as np
+import datetime
 
 # Pseudocode:
 # 1) get the name of the data file from the user on the command line
@@ -45,20 +46,63 @@ def parse_data(infile):
     """
     wdates = []             # list of dates data
     wtemperatures = []      # list of temperarture data
+    years = []               # list of year data. 
 
-    return wdates, wtemperatures
+    # open file 
+    with open(infile, mode="r",) as file:
+        # read first line  
+        file.readline()
+        for line in file:
+            # split line with spaces.   
+            record = line.rstrip().split()
+
+            # get date info from the line 
+            yearDayMonth = record[2]
+            year = yearDayMonth[0:4]
+            years.append(int(year))
+            month = yearDayMonth[4:6]
+            day = yearDayMonth[6:8]
+
+            # set the date and append to wdates 
+            date = datetime.date(int(year), int(month), int(day))
+            wdates.append(date)
+
+            # set the temp and append to wtemperatures
+            temp = float(record[3])
+            wtemperatures.append(temp)
+
+    return wdates, wtemperatures, years
 
 
 def calc_mean_std_dev(wdates, wtemp):
     """
     Calculate the mean temperature per month
     Calculate the standard deviation per month's mean
-    :param wdates: dictionary with dates fields
+    :param wdates: list with dates fields
     :param wtemp: temperature per month
     :return: means, std_dev: months_mean and std_dev lists
     """
-    means = []
-    std_dev = []
+    means = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,]
+    std_dev = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,]
+    monthTemps = {}
+
+    # organize the data into a dictionary to group temps by month. 
+    for date, temp in zip(wdates, wtemp):
+        # create a string key by month 
+        month = str(date.month)
+        # if key exists add temp to key 
+        if month in monthTemps:
+            monthTemps[month].append(float(temp))
+        # if key dosent exist add key then add temp to key 
+        else:
+            monthTemps[month] = []
+            monthTemps[month].append(float(temp))
+
+    # useing a dicionary get the mean for each month and the standerd devation for each month. 
+    for key, value in monthTemps.items():
+        intKey = int(key)
+        means[intKey - 1] = sum(value)/len(value)
+        std_dev[intKey - 1] = np.std(value)
 
     return means, std_dev
 
@@ -79,13 +123,14 @@ def plot_data_task1(wyear, wtemp, month_mean, month_std):
     plt.plot(wyear, wtemp, "bo")
     plt.ylabel("Temperature, F")
     plt.xlabel("Decimal Year")
+    plt.xticks(range(1970,2015, 5))
 
     plt.subplot(2, 1, 2)                # select second subplot
     plt.ylabel("Temperature, F")
     months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
               "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     monthNumber = list(range(1, 13, 1))
-    plt.xlim([0.7, 13])
+    plt.xlim([0.0, 13])
     plt.ylim([0, 90])
     width = 0.8
     plt.bar(monthNumber, month_mean, yerr=month_std, width=width,
@@ -106,12 +151,12 @@ def plot_data_task2(xxx):
 
 def main(infile):
     weather_data = infile    # take data file as input parameter to file
-    wdates, wtemperatures = parse_data(weather_data)
+    wdates, wtemperatures, wyear = parse_data(weather_data)
     # Calculate mean and standard dev per month
     month_mean, month_std = calc_mean_std_dev(wdates, wtemperatures)
-    # TODO: Make sure you have a list of:
+    # I have a list of:
     #       1) years, 2) temperature, 3) month_mean, 4) month_std
-    plot_data_task1(wyear, wtemp, month_mean, month_std)
+    plot_data_task1(wyear, wtemperatures, month_mean, month_std)
     # TODO: Create the data you need for this
     # plot_data_task2(xxx)
 
