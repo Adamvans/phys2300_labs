@@ -37,7 +37,7 @@ import datetime
 
 
 def parse_data(infile):
-    """
+    """got re
     Function to parse weather data
     :param infile: weather data input file
     :return: two lists. One list with the information from the third column (date)

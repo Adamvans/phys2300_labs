@@ -2,12 +2,12 @@
 Assignment to learn how to interpolate data1
 '''
 import sys
-# import matplotlib.pyplot as plt
-# import numpy as np
+import matplotlib.pyplot as plt
+import numpy as np
 # import scipy
-# import pandas as pd
+import pandas as pd
 
-https://youtu.be/-zvHQXnBO6c
+
 def read_wx_data(wx_file, harbor_data):
     """
     Read temperature and time data from file.
@@ -16,7 +16,10 @@ def read_wx_data(wx_file, harbor_data):
     :param harbor_data: A dictionary to collect data.
     :return: Nothing
     """
-    pass
+    TempData = pd.read_csv(wx_file)
+    print(TempData)
+   
+    
 
 
 def read_gps_data(gps_file, harbor_data):
@@ -27,7 +30,8 @@ def read_gps_data(gps_file, harbor_data):
     :param harbor_data: A dictionary to collect data.
     :return: Nothing
     """
-    pass
+    GPSData = pd.read_csv(gps_file, sep='[\s]{2,}|\t', skiprows=[1], engine='python')
+    
 
 
 def interpolate_wx_from_gps(harbor_data):
