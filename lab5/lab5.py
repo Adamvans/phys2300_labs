@@ -18,6 +18,7 @@ def set_scene(data):
     scene.forward = vector(0, -.3, -1)
     scene.x = -1
     # Set background: floor, table, etc
+    box(pos = vector(0,0,0), length=200, height=100, width=1)
 
 
 def motion_no_drag(data):
@@ -29,7 +30,7 @@ def motion_no_drag(data):
     # Follow the movement of the ball
     scene.camera.follow(ball_nd)
     # Set initial velocity & position
-
+    ball.velocity=vector(0,5,0)
     # Animate
 
 
@@ -42,14 +43,24 @@ def motion_drag(data):
 
 def main():
     """
+    Main function
+    two args req, one optional 
+    --velocity (required)
+    --angle (required)
+    --height(optional, set default to 1.2 meters)
+    :return: Nothing
     """
     # 1) Parse the arguments
-
+    parser = argparse.ArgumentParser(description="Assignment 5: Projectile motion")
+    parser.add_argument("--velocity", "-v", action="store", dest="velocity", type=float, required=True, help="Initial velocity in m/s")
+    parser.add_argument("--angle", "-a", action="store", dest="angle", type=float, required=True, help="Angle of Projectile")
+    parser.add_argument("--height", "-hi", action="store", dest="height", type=float, default=1.2, help="Height in meters")
+    args = parser.parse_args()
     # Set Variables
     data = {}       # empty dictionary for all data and variables
-#    data['init_height'] = args.height   # y-axis
-#    data['init_velocity'] = args.velocity  # m/s
-#    data['theta'] = args.angle       # degrees
+    data['init_height'] = args.height   # y-axis
+    data['init_velocity'] = args.velocity  # m/s
+    data['theta'] = args.angle       # degrees
     # Constants
     data['rho'] = 1.225  # kg/m^3
     data['Cd'] = 0.5    # coefficient friction
