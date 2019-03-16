@@ -1,4 +1,4 @@
-from vpython import *
+from vpython import sphere, box, scene, color, vector, rotate, mag, rate, pi
 from math import sin, cos, radians
 import argparse
 
@@ -8,7 +8,6 @@ def set_scene(data):
     """
     Set Vpython Scene
     """
-    scene = canvas(backround=color.blue)
     scene.title = "Assignment 5: Projectile motion"
     scene.width = 800
     scene.heigth = 600
@@ -53,6 +52,8 @@ def motion_drag(data):
     """
     ball_nd = sphere(pos=vector(-80, data['init_height'], 0),
                         radius=1, color=color.purple, make_trail=True)
+    # Follow the movement of the ball
+    scene.camera.follow(ball_nd)
     # Set initial velocity & position
     ball_nd.velocity=rotate(vector(data['init_velocity'],0,0), angle=radians(data['theta']))
     ball_nd.mass = data['ball_mass']
