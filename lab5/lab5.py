@@ -16,10 +16,13 @@ def set_scene(data):
     On a two-button mouse, middle is left + right.
     Touch screen: pinch/extend to zoom, swipe or two-finger rotate."""
     scene.forward = vector(0, -.3, -1)
+    # zoom in to see the ball moving 
     scene.range = 50
+
     scene.x = -1
+    # the sky is blue
     scene.background = color.blue
-    # Set background: floor, table, etc
+    # the ground is green 
     box(pos = vector(0,0,0), length=2000, height=.1, width=1000, color=color.green)
 
 
@@ -27,23 +30,30 @@ def motion_no_drag(data):
     """
     Create animation for projectile motion with no dragging force
     """
+    # ball is cyan and has a trail.
     ball_nd = sphere(pos=vector(-80, data['init_height'], 0),
                         radius=1, color=color.cyan, make_trail=True)
     # Follow the movement of the ball
     scene.camera.follow(ball_nd)
-    # Set initial velocity & position angle requres radians 
+    # Set initial velocity & position. 
+    # set initial velosity to go in the x direcion and rotate via angle. rotate requres radians 
     ball_nd.velocity=rotate(vector(data['init_velocity'],0,0), angle=radians(data['theta']))
+    # set the balls mass 
     ball_nd.mass = data['ball_mass']
+    # set the balls momentum  
     ball_nd.p=ball_nd.velocity*ball_nd.mass
-    grav=vector(0,data['gravity'],0)
-    netForce=grav*ball_nd.mass
-    
+    # set the force of gravaity vector 
+    netForce=vector(0,data['gravity'],0)*ball_nd.mass
+    # time is 0 
     t = 0
     # Animate
     while ball_nd._pos.y > ball_nd.radius:
         rate(300)
+        # plot via velosty tims deltat + position 
         ball_nd.pos=ball_nd.pos + (ball_nd.p/ball_nd.mass)*data['deltat']
+        # set new monmentum 
         ball_nd.p = ball_nd.p + netForce*data['deltat']
+        # set new time
         t = t + data['deltat']
 
 def motion_drag(data):
@@ -54,20 +64,26 @@ def motion_drag(data):
                         radius=1, color=color.purple, make_trail=True)
     # Follow the movement of the ball
     scene.camera.follow(ball_nd)
-    # Set initial velocity & position
+    # Set initial velocity & position. 
+    # set initial velosity to go in the x direcion and rotate via angle. rotate requres radians 
     ball_nd.velocity=rotate(vector(data['init_velocity'],0,0), angle=radians(data['theta']))
     ball_nd.mass = data['ball_mass']
+    # set the balls momentum  
     ball_nd.p=ball_nd.velocity*ball_nd.mass
-    grav=vector(0,data['gravity'],0)
-    netForce=((grav*ball_nd.mass) - (data['alpha']*mag(ball_nd.p/ball_nd.mass)**2 * (ball_nd.p/mag(ball_nd.p)))) 
+    # foce of gravaty - force of air fiction (alpha*velosity^2) * a vector of 1 in the balls direction of movement. 
+    netForce=((vector(0,data['gravity'],0)*ball_nd.mass) - (data['alpha']*mag(ball_nd.p/ball_nd.mass)**2 * (ball_nd.p/mag(ball_nd.p)))) 
 
     t = 0
     # Animate
     while ball_nd._pos.y > ball_nd.radius:
         rate(300)
+        # plot via velosty tims deltat + position 
         ball_nd.pos=ball_nd.pos + (ball_nd.p/ball_nd.mass)*data['deltat']
-        netForce = ((grav*ball_nd.mass) - (data['alpha']*mag(ball_nd.p/ball_nd.mass)**2 * (ball_nd.p/mag(ball_nd.p)))) 
+        # air friction changes with speed of the ball. 
+        netForce = ((vector(0,data['gravity'],0)*ball_nd.mass) - (data['alpha']*mag(ball_nd.p/ball_nd.mass)**2 * (ball_nd.p/mag(ball_nd.p)))) 
+        # set new monmentum 
         ball_nd.p = ball_nd.p + netForce * data['deltat']
+         # set new time
         t = t + data['deltat']
 
 
