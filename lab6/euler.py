@@ -1,5 +1,5 @@
 import numpy as np
-
+from matplotlib import pyplot as plt
 
 def f_x(x, t):
     """
@@ -24,8 +24,11 @@ def main():
         xpoints.append(x)
         x += h*f_x(x, t)
 
-    # Print Values
-    print(xpoints)
+    # Plot Values
+    plt.plot(tpoints, xpoints)
+    plt.xlabel("t")
+    plt.ylabel("x(t)")
+    plt.show()
 
 if __name__ == "__main__":
     main()
