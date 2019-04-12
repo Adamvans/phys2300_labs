@@ -106,18 +106,24 @@ def getdata(args):
         # data.loc['Mars', 'vy'] = 2.4*10**4
         # data.loc['Mars', 'vz'] = 0
     else:
+        # read the file 
         data = pd.read_csv(args.file, skiprows=[0], index_col='planet')
+        # set row names to planet names 
         data.rename(columns=lambda x: x.strip(), inplace=True)
+        # pull mass col from table 
         mass = data['mass'].tolist()
-        mass = list(map(float, mass)) # change mass list to floats. 
+        # change mass list to floats.
+        mass = list(map(float, mass))  
+        # drop mass col from table 
         data = data.drop(columns=['mass'])
-        data = data.multiply(1.5e11)  # multiply the data by 1 au in meters.
+        # multiply the data by 1 au in meters to convert it 
+        data = data.multiply(1.5e11)  
+        # re add the mass column  
         data['mass'] = mass
+        # change velocity from meters/day to meters/sec   
         data['vx'] = data['vx']/86400
         data['vy'] = data['vy']/86400
         data['vz'] = data['vz']/86400
-
-        #print(type(mass[0]))
     
     return data
 
@@ -139,8 +145,9 @@ def setupPlanets(data, args):
     if args.file != "no file":
         data.loc['Sun', 'mass'] = 1.99e30
 
-    # 6.371*10**6
+    
     planets = []
+
     # Set up initial values
     sun = sphere(pos=vector(0,0,0), radius=695.51e7, mass=data.loc['Sun', 'mass'], emissive=True,
     acceleration=vector(0,0,0), velocity=vector(0,0,0), color=color.yellow)
@@ -148,7 +155,7 @@ def setupPlanets(data, args):
     earth = sphere(pos=vector(data.loc['Earth+Moon barycenter', 'x'], data.loc['Earth+Moon barycenter', 'y'], data.loc['Earth+Moon barycenter', 'z']),
      radius=6.371e6, mass=data.loc['Earth+Moon barycenter', 'mass'], acceleration=vector(0,0,0),  color=color.blue, make_trail=True, emissive=True,
      velocity=vector(data.loc['Earth+Moon barycenter', 'vx'], data.loc['Earth+Moon barycenter', 'vy'], data.loc['Earth+Moon barycenter', 'vz']))
-
+    # if no file only do earth and sun 2-body simulation 
     if args.file != "no file":
         mercury = sphere(pos=vector(data.loc['Mercury', 'x'], data.loc['Mercury', 'y'], data.loc['Mercury', 'z']),
         radius=2.4397e6, mass=data.loc['Mercury', 'mass'], acceleration=vector(0,0,0),  color=color.white, make_trail=True, emissive=True,
@@ -182,7 +189,7 @@ def setupPlanets(data, args):
         radius=1.1883e6, mass=data.loc['Pluto', 'mass'], acceleration=vector(0,0,0),  color=color.white, make_trail=True, emissive=True,
         velocity=vector(data.loc['Pluto', 'vx'], data.loc['Pluto', 'vy'], data.loc['Pluto', 'vz']))
 
-
+    # add objects to a list. 
     planets.append(sun)
     planets.append(earth)
     if args.file != "no file":
@@ -195,7 +202,9 @@ def setupPlanets(data, args):
         planets.append(neptune)
         planets.append(pluto)
 
+    # animate Planets useing Euler-Cromer
     animatePlanets(planets)
+    # animate Planets useing leap frog
     leapfrog(planets)
 
 def animatePlanets(objects):
@@ -203,12 +212,12 @@ def animatePlanets(objects):
     This functions animates pre-loaded planets 
     Pramater1 : list of solor system objects. 
     """
-    # time 
+    # time and grav.
     dt = 6.3e4
     totalTime = 3.15e7
     time = 0
     G = 6.67408e-11
-
+    # animate Planet loop 
     while time < totalTime:
         rate(100)
         for i in objects:
@@ -218,6 +227,7 @@ def animatePlanets(objects):
                     dist = j.pos - i.pos
                     i.acceleration = i.acceleration + G * j.mass * dist / mag(dist)**3
         for i in objects:
+            # center of mass for velocity
             sumv = vector(0,0,0)
             div = 0
             for j in objects:
@@ -226,6 +236,7 @@ def animatePlanets(objects):
             cofmVel = sumv/div
             i.velocity = i.velocity + i.acceleration*dt - cofmVel
 
+            # center of mass for posisition 
             sump = vector(0,0,0)
             dip = 0
             for j in objects:
@@ -247,6 +258,7 @@ def leapfrog(objects):
     G = 6.67408e-11
     firstStep = 0
 
+    # animate Planet loop 
     while time < totalTime:
         rate(100)
         
@@ -256,6 +268,7 @@ def leapfrog(objects):
                 if i != j:
                     distance = j.pos - i.pos
                     i.acceleration = i.acceleration + G * j.mass * distance / mag(distance)**3
+        # leapfrog 
         if firstStep == 0:
             for i in objects:
                 i.velocity = i.velocity + i.acceleration*dt/2.0
@@ -263,6 +276,7 @@ def leapfrog(objects):
             firstStep = 1
         else:
             for i in objects:
+                # center of mass for velocity
                 sumv = vector(0,0,0)
                 div = 0
                 for j in objects:
@@ -271,6 +285,7 @@ def leapfrog(objects):
                 cofmVel = sumv/div
                 i.velocity = i.velocity + i.acceleration*dt - cofmVel
 
+                # center of mass for posisition 
                 sump = vector(0,0,0)
                 dip = 0
                 for j in objects:
@@ -290,6 +305,7 @@ def main():
     parser.add_argument("--file", "-f", action="store", dest="file", type=str, default="no file", help="full path of file to parse")
     args = parser.parse_args()
 
+    # call all fucntions 
     data= getdata(args)
     setupPlanets(data, args)
 
