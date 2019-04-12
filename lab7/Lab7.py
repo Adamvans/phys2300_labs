@@ -20,7 +20,7 @@ def getdata(args):
         while(error):
             # try catch to see if it is a valed number. 
             try:
-                mass.append(float(input("Please enter the Mass of the Sun: "))) 
+                data.loc['Sun', 'mass'] = float(input("Please enter the Mass of the Sun: "))
                 error = False
             except:
                 print("That is not a number. Please enter a number. ie 1.99e30")
@@ -30,21 +30,39 @@ def getdata(args):
         while(error):
             # try catch to see if it is a valed number. 
             try:
-                data.loc['Earth+Moon barycenter', 'x'] = float(input("Please enter the initial distance of earth from the sun: "))
-                data.loc['Earth+Moon barycenter', 'y'] = 0
+                data.loc['Earth+Moon barycenter', 'x'] = float(input("Please enter the initial x distance of earth from the sun: "))
                 data.loc['Earth+Moon barycenter', 'z'] = 0
                 error = False
             except:
                 print("That is not a number. Please enter a number. ie 1.5e11")
+                error = True
+
+        error = True
+        while(error):
+            # try catch to see if it is a valed number. 
+            try:
+                data.loc['Earth+Moon barycenter', 'y'] = float(input("Please enter the initial y distance of earth from the sun: "))
+                error = False
+            except:
+                print("That is not a number. Please enter a number. ie 1.5e11")
+                error = True
+
+        error = True
+        while(error):
+            # try catch to see if it is a valed number. 
+            try:
+                data.loc['Earth+Moon barycenter', 'vx'] = float(input("Please enter the initial x velocity of earth: "))
+                data.loc['Earth+Moon barycenter', 'vz'] = 0
+                error = False
+            except:
+                print("That is not a number. Please enter a number. ie 3e4")
                 error = True
         
         error = True
         while(error):
             # try catch to see if it is a valed number. 
             try:
-                data.loc['Earth+Moon barycenter', 'vy'] = float(input("Please enter the initial velocity of earth: "))
-                data.loc['Earth+Moon barycenter', 'vx'] = 0
-                data.loc['Earth+Moon barycenter', 'vz'] = 0
+                data.loc['Earth+Moon barycenter', 'vy'] = float(input("Please enter the initial y velocity of earth: "))
                 error = False
             except:
                 print("That is not a number. Please enter a number. ie 3e4")
@@ -54,7 +72,7 @@ def getdata(args):
         while(error):
             # try catch to see if it is a valed number. 
             try:
-                mass.append(float(input("Please enter the Mass of earth: "))) 
+                data.loc['Earth+Moon barycenter', 'mass'] = (float(input("Please enter the Mass of earth: "))) 
                 error = False
             except:
                 print("That is not a number. Please enter a number. ie 5.97e24")
@@ -90,12 +108,20 @@ def getdata(args):
     else:
         data = pd.read_csv(args.file, skiprows=[0], index_col='planet')
         data.rename(columns=lambda x: x.strip(), inplace=True)
+        mass = data['mass'].tolist()
+        mass = list(map(float, mass)) # change mass list to floats. 
+        data = data.drop(columns=['mass'])
         data = data.multiply(1.5e11)  # multiply the data by 1 au in meters.
+        data['mass'] = mass
+        data['vx'] = data['vx']/86400
+        data['vy'] = data['vy']/86400
+        data['vz'] = data['vz']/86400
+
+        #print(type(mass[0]))
     
-    return data,mass
+    return data
 
-
-def setupPlanets(data, mass):
+def setupPlanets(data, args):
     """    
     This functions uses the data to set up the simulation then calls the animate function 
     Pramater1 : list of solor system data. 
@@ -110,67 +136,56 @@ def setupPlanets(data, mass):
     On a two-button mouse, middle is left + right.
     Touch screen: pinch/extend to zoom, swipe or two-finger rotate.
     """
-
-    if len(mass) == 0:
-        # mass
-        M_sun = 1.99e30
-        M_mercury = 3.285e23
-        M_venus = 4.867e24
-        M_earth = 5.97e24
-        M_mars = 6.39e23
-        M_jupiter = 1.898e27
-        M_saturn = 5.683e26
-        M_uranus = 8.681e25
-        M_neptune = 1.024e26
-        M_pluto = 1.309e22
-    else:
-        M_sun = mass[0]
-        M_earth = mass[1]
-    
+    if args.file != "no file":
+        data.loc['Sun', 'mass'] = 1.99e30
 
     # 6.371*10**6
     planets = []
     # Set up initial values
-    sun = sphere(pos=vector(0,0,0), radius=695.51e7, mass=M_sun, emissive=True,
+    sun = sphere(pos=vector(0,0,0), radius=695.51e7, mass=data.loc['Sun', 'mass'], emissive=True,
     acceleration=vector(0,0,0), velocity=vector(0,0,0), color=color.yellow)
 
     earth = sphere(pos=vector(data.loc['Earth+Moon barycenter', 'x'], data.loc['Earth+Moon barycenter', 'y'], data.loc['Earth+Moon barycenter', 'z']),
-     radius=6.371e6, mass=M_earth, acceleration=vector(0,0,0),  color=color.blue, make_trail=True, emissive=True,
+     radius=6.371e6, mass=data.loc['Earth+Moon barycenter', 'mass'], acceleration=vector(0,0,0),  color=color.blue, make_trail=True, emissive=True,
      velocity=vector(data.loc['Earth+Moon barycenter', 'vx'], data.loc['Earth+Moon barycenter', 'vy'], data.loc['Earth+Moon barycenter', 'vz']))
 
-    if len(mass) == 0:
+    if args.file != "no file":
         mercury = sphere(pos=vector(data.loc['Mercury', 'x'], data.loc['Mercury', 'y'], data.loc['Mercury', 'z']),
-        radius=2.4397e6, mass=M_mercury, acceleration=vector(0,0,0),  color=color.white, make_trail=True, emissive=True,
+        radius=2.4397e6, mass=data.loc['Mercury', 'mass'], acceleration=vector(0,0,0),  color=color.white, make_trail=True, emissive=True,
         velocity=vector(data.loc['Mercury', 'vx'], data.loc['Mercury', 'vy'], data.loc['Mercury', 'vz']))
 
         venus = sphere(pos=vector(data.loc['Venus', 'x'], data.loc['Venus', 'y'], data.loc['Venus', 'z']),
-        radius=6.0518e6, mass=M_venus, acceleration=vector(0,0,0),  color=color.purple, make_trail=True, emissive=True,
+        radius=6.0518e6, mass=data.loc['Venus', 'mass'], acceleration=vector(0,0,0),  color=color.purple, make_trail=True, emissive=True,
         velocity=vector(data.loc['Venus', 'vx'], data.loc['Venus', 'vy'], data.loc['Venus', 'vz']))
 
         mars = sphere(pos=vector(data.loc['Mars', 'x'], data.loc['Mars', 'y'], data.loc['Mars', 'z']),
-        radius=3.3895e6, mass=M_mars, acceleration=vector(0,0,0),  color=color.red, make_trail=True, emissive=True,
+        radius=3.3895e6, mass=data.loc['Mars', 'mass'], acceleration=vector(0,0,0),  color=color.red, make_trail=True, emissive=True,
         velocity=vector(data.loc['Mars', 'vx'], data.loc['Mars', 'vy'], data.loc['Mars', 'vz']))
 
         jupiter = sphere(pos=vector(data.loc['Jupiter', 'x'], data.loc['Jupiter', 'y'], data.loc['Jupiter', 'z']),
-        radius=69.911e6, mass=M_jupiter, acceleration=vector(0,0,0),  color=color.orange, make_trail=True, emissive=True,
+        radius=69.911e6, mass=data.loc['Jupiter', 'mass'], acceleration=vector(0,0,0),  color=color.orange, make_trail=True, emissive=True,
         velocity=vector(data.loc['Jupiter', 'vx'], data.loc['Jupiter', 'vy'], data.loc['Jupiter', 'vz']))
 
         saturn = sphere(pos=vector(data.loc['Saturn', 'x'], data.loc['Saturn', 'y'], data.loc['Saturn', 'z']),
-        radius=58.232e6, mass=M_saturn, acceleration=vector(0,0,0),  color=color.magenta, make_trail=True, emissive=True,
+        radius=58.232e6, mass=data.loc['Saturn', 'mass'], acceleration=vector(0,0,0),  color=color.magenta, make_trail=True, emissive=True,
         velocity=vector(data.loc['Saturn', 'vx'], data.loc['Saturn', 'vy'], data.loc['Saturn', 'vz']))
 
         uranus = sphere(pos=vector(data.loc['Uranus', 'x'], data.loc['Uranus', 'y'], data.loc['Uranus', 'z']),
-        radius=25.362e6, mass=M_neptune, acceleration=vector(0,0,0),  color=color.cyan, make_trail=True, emissive=True,
+        radius=25.362e6, mass=data.loc['Uranus', 'mass'], acceleration=vector(0,0,0),  color=color.cyan, make_trail=True, emissive=True,
         velocity=vector(data.loc['Uranus', 'vx'], data.loc['Uranus', 'vy'], data.loc['Uranus', 'vz']))
 
         neptune = sphere(pos=vector(data.loc['Neptune', 'x'], data.loc['Neptune', 'y'], data.loc['Neptune', 'z']),
-        radius=24.622e6, mass=M_uranus, acceleration=vector(0,0,0),  color=color.green, make_trail=True, emissive=True,
+        radius=24.622e6, mass=data.loc['Neptune', 'mass'], acceleration=vector(0,0,0),  color=color.green, make_trail=True, emissive=True,
         velocity=vector(data.loc['Neptune', 'vx'], data.loc['Neptune', 'vy'], data.loc['Neptune', 'vz']))
 
         pluto = sphere(pos=vector(data.loc['Pluto', 'x'], data.loc['Pluto', 'y'], data.loc['Pluto', 'z']),
-        radius=1.1883e6, mass=M_pluto, acceleration=vector(0,0,0),  color=color.white, make_trail=True, emissive=True,
+        radius=1.1883e6, mass=data.loc['Pluto', 'mass'], acceleration=vector(0,0,0),  color=color.white, make_trail=True, emissive=True,
         velocity=vector(data.loc['Pluto', 'vx'], data.loc['Pluto', 'vy'], data.loc['Pluto', 'vz']))
 
+
+    planets.append(sun)
+    planets.append(earth)
+    if args.file != "no file":
         planets.append(mercury)
         planets.append(venus)
         planets.append(mars)
@@ -180,13 +195,8 @@ def setupPlanets(data, mass):
         planets.append(neptune)
         planets.append(pluto)
 
-
-
-    planets.append(sun)
-    planets.append(earth)
-    
-
     animatePlanets(planets)
+    leapfrog(planets)
 
 def animatePlanets(objects):
     """
@@ -200,7 +210,7 @@ def animatePlanets(objects):
     G = 6.67408e-11
 
     while time < totalTime:
-        rate(300)
+        rate(100)
         for i in objects:
             i.acceleration = vector(0,0,0)
             for j in objects:
@@ -208,10 +218,67 @@ def animatePlanets(objects):
                     dist = j.pos - i.pos
                     i.acceleration = i.acceleration + G * j.mass * dist / mag(dist)**3
         for i in objects:
-            i.velocity = i.velocity + i.acceleration*dt
-            i.pos = i.pos + i.velocity * dt
+            sumv = vector(0,0,0)
+            div = 0
+            for j in objects:
+                sumv = sumv + j.mass*j.velocity
+                div = div + j.mass
+            cofmVel = sumv/div
+            i.velocity = i.velocity + i.acceleration*dt - cofmVel
 
-    time = time + dt
+            sump = vector(0,0,0)
+            dip = 0
+            for j in objects:
+                sump = sumv + j.mass*j.pos
+                dip = div + j.mass
+            cofmPos = sump/dip
+            i.pos = i.pos + i.velocity * dt - cofmPos
+        time = time + dt
+
+def leapfrog(objects):
+    """
+    This functions animates pre-loaded planets with the leap frog method.
+    Pramater1 : list of solor system objects. 
+    """
+    # time 
+    dt = 6.3e4
+    totalTime = 3.15e7
+    time = 0
+    G = 6.67408e-11
+    firstStep = 0
+
+    while time < totalTime:
+        rate(100)
+        
+        for i in objects:
+            i.acceleration = vector(0,0,0)
+            for j in objects:
+                if i != j:
+                    distance = j.pos - i.pos
+                    i.acceleration = i.acceleration + G * j.mass * distance / mag(distance)**3
+        if firstStep == 0:
+            for i in objects:
+                i.velocity = i.velocity + i.acceleration*dt/2.0
+                i.pos = i.pos + i.velocity*dt
+            firstStep = 1
+        else:
+            for i in objects:
+                sumv = vector(0,0,0)
+                div = 0
+                for j in objects:
+                    sumv = sumv + j.mass*j.velocity
+                    div = div + j.mass
+                cofmVel = sumv/div
+                i.velocity = i.velocity + i.acceleration*dt - cofmVel
+
+                sump = vector(0,0,0)
+                dip = 0
+                for j in objects:
+                    sump = sumv + j.mass*j.pos
+                    dip = div + j.mass
+                cofmPos = sump/dip
+                i.pos = i.pos + i.velocity * dt - cofmPos
+        time = time + dt
 
 
 
@@ -223,8 +290,8 @@ def main():
     parser.add_argument("--file", "-f", action="store", dest="file", type=str, default="no file", help="full path of file to parse")
     args = parser.parse_args()
 
-    data, mass = getdata(args)
-    setupPlanets(data, mass)
+    data= getdata(args)
+    setupPlanets(data, args)
 
     
 
