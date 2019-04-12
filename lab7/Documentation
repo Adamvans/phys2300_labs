@@ -1,0 +1,43 @@
+    Documentation for Programming Assignment M7: 
+The N-Body simulation of the solar system
+To start the program you can run: python Lab7.  
+There is an optional argument of –file or -f.
+if the argument is used then the next argument 
+is the file path of the csv file that holds the 
+data for the solar system. It will then inter 
+all the data from the file and do the 8+1 body 
+simulation.  It starts animating using the 
+Euler-Cromer method and then animates using the 
+Leapfrog method. The animation of the planets 
+leave tails so make the planets easier to see.
+ 
+    If there is no argument it will ask for 
+the mass of the sun, and earth. And the 
+position of the earth in x and y coordinates. 
+And the velocity in x and y coordinates. It 
+will then do the 2-body simulation. It starts 
+animating using the Euler-Cromer method and then 
+animates using the Leapfrog method.The animation 
+of the planets leave tails so make the planets 
+easier to see.
+ 
+1. For fun, what happens to the Earth's orbit in 
+the 2-body case when you increase the initial 
+velocity to 35 km/s?
+ 
+the orbit gets larger it is still a complete 
+orbit but is no longer centered on the sun. 
+it starts at the same location so this is the 
+closest location to the son. The other parts of 
+the orbit are all further.
+ 
+2. What is the behavior of your code if you 
+alter the time step? That is, what happens when 
+the time step is longer than necessary? What 
+happens if it is shorter than necessary?
+
+If the steps are longer the animation is faster 
+but at the cost of accuracy. The planets also 
+appear to jump great distances. If the time step 
+is shorter than the animation takes longer. The 
+more steps the slower it is. 
